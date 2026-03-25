@@ -93,7 +93,7 @@ These figures show the progression of a self-play game across different stages.
 
 ---
 
-## 🚀 Usage
+## Usage
 
 ```python
 from mycheckersenv import env
