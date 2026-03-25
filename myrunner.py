@@ -3,7 +3,7 @@ from myagent import ACAgent
 import numpy as np
 
 
-def train(episodes=50):
+def train(episodes=200):
     e = env()
 
     state_size = 37
@@ -14,8 +14,6 @@ def train(episodes=50):
     rewards_history = []
 
     for ep in range(episodes):
-        print(f"\nEpisode {ep} started")
-
         e.reset()
         total_reward = 0
         step_count = 0
@@ -25,7 +23,6 @@ def train(episodes=50):
 
             step_count += 1
             if step_count > 200:
-                print("step limit reached")
                 break
 
             if term or trunc:
@@ -36,7 +33,6 @@ def train(episodes=50):
             valid_moves = e._get_valid_moves(player)
             valid_actions = [(r * 6 + c) * 4 + d for (r, c, d) in valid_moves]
 
-            # use model, but fallback to valid move
             action, log_prob = agent.select_action(state)
             if action not in valid_actions:
                 action = np.random.choice(valid_actions)
@@ -52,8 +48,6 @@ def train(episodes=50):
 
         rewards_history.append(total_reward)
 
-        print(f"Episode {ep} finished | Reward: {total_reward}")
-
     return agent, rewards_history
 
 def play_game(agent):
@@ -67,12 +61,8 @@ def play_game(agent):
     for agent_name in e.agent_iter():
         state, reward, term, trunc, _ = e.last()
 
+        print(f"\nRound {step_count} ({agent_name})")
         e.render()
-
-        step_count += 1
-        if step_count > 50:
-            print("stopping display early")
-            break
 
         if term or trunc:
             e.step(None)
@@ -88,11 +78,13 @@ def play_game(agent):
 
         e.step(action)
 
+        step_count += 1
+
     print("\n===== GAME END =====")
 
 
 if __name__ == "__main__":
-    trained_agent, rewards = train(50)
+    trained_agent, rewards = train(200)
 
     print("\nFinal cumulative reward:", rewards[-1])
 
