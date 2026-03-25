@@ -86,7 +86,7 @@ class raw_env(AECEnv):
                     nr, nc = r + dr, c + dc
                     nr2, nc2 = r + 2 * dr, c + 2 * dc
 
-                    # 🔥 CAPTURE (allowed in ALL directions)
+                    # capture
                     if (
                         0 <= nr < BOARD_SIZE and 0 <= nc < BOARD_SIZE
                         and 0 <= nr2 < BOARD_SIZE and 0 <= nc2 < BOARD_SIZE
@@ -94,7 +94,7 @@ class raw_env(AECEnv):
                         if self.board[nr][nc] * piece < 0 and self.board[nr2][nc2] == EMPTY:
                             captures.append((r, c, d_idx))
 
-                    # 🔹 NORMAL MOVE (direction restricted)
+                    # normal move (direction restricted)
                     allow_normal = True
                     if not is_king:
                         if player == 0 and dr > 0:
@@ -131,7 +131,7 @@ class raw_env(AECEnv):
         valid_moves = self._get_valid_moves(player)
 
         if (r, c, direction) not in valid_moves:
-            self.rewards[agent] = -1
+            self.rewards[agent] = -0.2
         else:
             dr, dc = DIRECTIONS[direction]
             piece = self.board[r][c]
@@ -148,7 +148,7 @@ class raw_env(AECEnv):
             ):
                 nr, nc = nr2, nc2
                 self.board[nr_mid][nc_mid] = EMPTY
-                self.rewards[agent] = 0.1
+                self.rewards[agent] = 0.5
             else:
                 nr, nc = r + dr, c + dc
                 self.rewards[agent] = 0
