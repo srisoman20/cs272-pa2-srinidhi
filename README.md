@@ -78,20 +78,6 @@ The game ends when:
 
 ---
 
-## Sample Gameplay
-
-### Early Game
-![Early Game](images/early_game.png)
-
-### Mid Game
-![Mid Game](images/mid_game.png)
-
-### Late Game
-![Late Game](images/late_game.png)
-
-These figures show the progression of a self-play game across different stages.
-
----
 
 ## Usage
 
