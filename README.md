@@ -21,11 +21,11 @@ This project implements a custom 6x6 Checkers environment using the PettingZoo A
 
 The observation is a flattened vector of size **37**:
 
-- First 36 values → board state (6×6 grid flattened)
-  - `1` → player_0 piece  
-  - `-1` → player_1 piece  
-  - `0` → empty cell  
-- Last value → current player indicator  
+- First 36 values = board state (6×6 grid flattened)
+  - `1` = player_0 piece  
+  - `-1` = player_1 piece  
+  - `0` = empty cell  
+- Last value = current player indicator  
 
 This provides the agent with full information about the board.
 
@@ -44,10 +44,10 @@ Only **valid moves** are allowed during training to ensure stability.
 
 ## Rewards
 
-- **+1** → Win  
-- **-1** → Loss  
-- **+0.5** → Capture  
-- **-0.2** → Invalid move  
+- **+1** = Win  
+- **-1** = Loss  
+- **+0.5** = Capture  
+- **-0.2** = Invalid move  
 
 Reward shaping is used to encourage capturing and strategic play.
 
@@ -67,7 +67,7 @@ The game ends when:
 - Actor selects actions using a probability distribution  
 - Critic evaluates state quality  
 - Both players share the same model  
-- Training is done via **self-play**  
+- Training is done via self-play
 - TD error is used for updates  
 
 ---
