@@ -27,7 +27,7 @@ The observation is a flattened vector of size **37**:
   - `-1` = player_1 piece  
   - `-2` = player_1 king  
   - `0` = empty cell 
-- Last value = current player indicator  
+- Last value = current player ID (0 or 1)  
 
 This provides the agent with full information about the board.
 The observation follows the PettingZoo AEC format and is provided to the current agent at each step.
