@@ -5,10 +5,11 @@ from gymnasium.spaces import Discrete, Box
 from pettingzoo import AECEnv
 from pettingzoo.utils import AgentSelector
 
-
+# board + action set up
 BOARD_SIZE = 6
 NUM_ACTIONS = BOARD_SIZE * BOARD_SIZE * 4
 
+# piece reperesentation
 EMPTY = 0
 P0 = 1
 P0_K = 2
@@ -16,7 +17,6 @@ P1 = -1
 P1_K = -2
 
 DIRECTIONS = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
-
 
 def env():
     return raw_env()
@@ -29,10 +29,12 @@ class raw_env(AECEnv):
         self.possible_agents = ["player_0", "player_1"]
         self.agent_name_mapping = dict(zip(self.possible_agents, [0, 1]))
 
+    # observation space: flattened board + current player id
     @functools.lru_cache(maxsize=None)
     def observation_space(self, agent):
         return Box(low=-2, high=2, shape=(BOARD_SIZE * BOARD_SIZE + 1,), dtype=np.int8)
 
+    # action space: all possible (cell, direction) pairs
     @functools.lru_cache(maxsize=None)
     def action_space(self, agent):
         return Discrete(NUM_ACTIONS)
@@ -43,22 +45,26 @@ class raw_env(AECEnv):
         self.board = np.zeros((BOARD_SIZE, BOARD_SIZE), dtype=int)
 
         # initialize board
+        # place player 1 pieces (top)
         for r in range(2):
             for c in range(BOARD_SIZE):
                 if (r + c) % 2 == 1:
                     self.board[r][c] = P1
 
+        # place player 0 pieces (bottom)
         for r in range(BOARD_SIZE - 2, BOARD_SIZE):
             for c in range(BOARD_SIZE):
                 if (r + c) % 2 == 1:
                     self.board[r][c] = P0
 
+        # initialize rewards and game state
         self.rewards = {a: 0 for a in self.agents}
         self._cumulative_rewards = {a: 0 for a in self.agents}
         self.terminations = {a: False for a in self.agents}
         self.truncations = {a: False for a in self.agents}
         self.infos = {a: {} for a in self.agents}
 
+        # set turn order
         self._agent_selector = AgentSelector(self.agents)
         self.agent_selection = self._agent_selector.next()
 
@@ -74,6 +80,7 @@ class raw_env(AECEnv):
             for c in range(BOARD_SIZE):
                 piece = self.board[r][c]
 
+                # skip opponent pieces
                 if player == 0 and piece <= 0:
                     continue
                 if player == 1 and piece >= 0:
@@ -86,7 +93,7 @@ class raw_env(AECEnv):
                     nr, nc = r + dr, c + dc
                     nr2, nc2 = r + 2 * dr, c + 2 * dc
 
-                    # capture
+                    # check capture move
                     if (
                         0 <= nr < BOARD_SIZE and 0 <= nc < BOARD_SIZE
                         and 0 <= nr2 < BOARD_SIZE and 0 <= nc2 < BOARD_SIZE
@@ -94,7 +101,7 @@ class raw_env(AECEnv):
                         if self.board[nr][nc] * piece < 0 and self.board[nr2][nc2] == EMPTY:
                             captures.append((r, c, d_idx))
 
-                    # normal move (direction restricted)
+                    # normal move (direction restricted if not king)
                     allow_normal = True
                     if not is_king:
                         if player == 0 and dr > 0:
@@ -109,13 +116,13 @@ class raw_env(AECEnv):
                         ):
                             moves.append((r, c, d_idx))
 
-        # mandatory capture
+        # mandatory capture if available
         return captures if len(captures) > 0 else moves
 
     def step(self, action):
         agent = self.agent_selection
 
-        if self.terminations[agent]:
+        if self.terminations[agent]:  # skip if already terminated
             self._was_dead_step(action)
             return
 
@@ -130,7 +137,7 @@ class raw_env(AECEnv):
 
         valid_moves = self._get_valid_moves(player)
 
-        if (r, c, direction) not in valid_moves:
+        if (r, c, direction) not in valid_moves:  # invalid move penalty
             self.rewards[agent] = -0.2
         else:
             dr, dc = DIRECTIONS[direction]
@@ -176,6 +183,7 @@ class raw_env(AECEnv):
             self.rewards[other] = -1
             self.terminations = {a: True for a in self.agents}
 
+        # move to next agent
         self.agent_selection = self._agent_selector.next()
         self._accumulate_rewards()
 

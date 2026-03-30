@@ -3,6 +3,7 @@ from myagent import ACAgent
 import numpy as np
 
 
+# train the Actor-Critic agent using self-play
 def train(episodes=200):
     e = env()
 
@@ -18,23 +19,20 @@ def train(episodes=200):
         total_reward = 0
         step_count = 0
 
+        # loop through agents (AEC style)
         for agent_name in e.agent_iter():
             state, reward, term, trunc, _ = e.last()
 
-            step_count += 1
-            if step_count > 200:
-                break
-
-            if term or trunc:
+            if term or trunc:  # skip if game already ended
                 e.step(None)
                 continue
 
-            player = e.agent_name_mapping[agent_name]
+            player = e.agent_name_mapping[agent_name]  # get valid moves for current player
             valid_moves = e._get_valid_moves(player)
-            valid_actions = [(r * 6 + c) * 4 + d for (r, c, d) in valid_moves]
+            valid_actions = [(r * 6 + c) * 4 + d for (r, c, d) in valid_moves]  # convert moves to action indices
 
-            action, log_prob = agent.select_action(state)
-            if action not in valid_actions:
+            action, log_prob = agent.select_action(state)  # select action using agent policy
+            if action not in valid_actions:  # if invalid action, replace with valid random action
                 action = np.random.choice(valid_actions)
 
             e.step(action)
@@ -64,10 +62,11 @@ def play_game(agent):
         print(f"\nRound {step_count} ({agent_name})")
         e.render()
 
-        if term or trunc:
+        if term or trunc:  # if game ended, skip step
             e.step(None)
             continue
 
+        # get valid actions
         player = e.agent_name_mapping[agent_name]
         valid_moves = e._get_valid_moves(player)
         valid_actions = [(r * 6 + c) * 4 + d for (r, c, d) in valid_moves]

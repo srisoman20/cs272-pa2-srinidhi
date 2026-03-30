@@ -23,11 +23,14 @@ The observation is a flattened vector of size **37**:
 
 - First 36 values = board state (6×6 grid flattened)
   - `1` = player_0 piece  
+  - `2` = player_0 king  
   - `-1` = player_1 piece  
-  - `0` = empty cell  
+  - `-2` = player_1 king  
+  - `0` = empty cell 
 - Last value = current player indicator  
 
 This provides the agent with full information about the board.
+The observation follows the PettingZoo AEC format and is provided to the current agent at each step.
 
 ---
 
@@ -69,32 +72,3 @@ The game ends when:
 - Both players share the same model  
 - Training is done via self-play
 - TD error is used for updates  
-
----
-
-## Final Results
-
-- **Final cumulative reward**: 9.0  
-
----
-
-
-## Usage
-
-```python
-from mycheckersenv import env
-
-e = env()
-e.reset()
-
-for agent in e.agent_iter():
-    obs, reward, term, trunc, info = e.last()
-
-    if term or trunc:
-        action = None
-    else:
-        action = e.action_space(agent).sample()
-
-    e.step(action)
-
-e.close()
